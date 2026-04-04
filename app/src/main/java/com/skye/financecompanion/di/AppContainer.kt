@@ -35,7 +35,5 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         TransactionRepositoryImpl(database.transactionDao)
     }
 
-    override val calculateStreakUseCase: CalculateStreakUseCase by lazy {
-        CalculateStreakUseCase(transactionRepository)
-    }
+    override val calculateStreakUseCase = CalculateStreakUseCase()
 }

@@ -67,7 +67,45 @@ fun HomeScreen(
                     .padding(horizontal = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp) // Generous spacing
             ) {
-                item { Spacer(modifier = Modifier.height(24.dp)) }
+
+                // Inside your LazyColumn in HomeScreen.kt
+                item {
+                    val streak = uiState.currentStreak // Assuming you update HomeViewModel to expose this
+
+                    ElevatedCard(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = if (streak > 0) MaterialTheme.colorScheme.primaryContainer
+                            else MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (streak > 0) "🔥" else "❄️",
+                                style = MaterialTheme.typography.displaySmall
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = "$streak Day Financial Streak",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = if (streak > 0) "You're disciplined! Keep it up."
+                                    else "No streak yet. Avoid non-essentials today!",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+
+//                item { Spacer(modifier = Modifier.height(24.dp)) }
 
                 item { DashboardHeader(uiState.balance, uiState.currentStreak) }
 

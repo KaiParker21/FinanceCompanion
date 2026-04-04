@@ -1,42 +1,29 @@
 package com.skye.financecompanion.domain.usecase
 
+import com.skye.financecompanion.domain.model.Transaction
 import com.skye.financecompanion.domain.model.TransactionType
-import com.skye.financecompanion.domain.repository.TransactionRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
-class CalculateStreakUseCase(
-    private val repository: TransactionRepository
-) {
-    operator fun invoke(): Flow<Int> {
-        return repository.getAllTransactions().map { transactions ->
-            if (transactions.isEmpty()) return@map 0
+class CalculateStreakUseCase {
+    operator fun invoke(transactions: List<Transaction>): Int {
+        if (transactions.isEmpty()) return 0
 
-            var streak = 0
-            var currentDate = LocalDate.now()
+        // 1. Get all non-essential expenses, sorted by date (newest first)
+        val badSpendingDays = transactions
+            .filter { it.type == TransactionType.EXPENSE && !it.isEssential }
+            .map { it.date }
+            .distinct()
+            .sortedDescending()
 
-            // Find the oldest transaction date so we know when to stop looping!
-            val oldestDate = transactions.minOfOrNull { it.date } ?: return@map 0
+        val today = LocalDate.now()
 
-            val transactionsByDate = transactions.groupBy { it.date }
+        // 2. If they spent money on garbage today, streak is 0
+        if (badSpendingDays.firstOrNull() == today) return 0
 
-            // FIX: Only loop until we hit the oldest transaction date
-            while (!currentDate.isBefore(oldestDate)) {
-                val dailyTransactions = transactionsByDate[currentDate] ?: emptyList()
+        // 3. Otherwise, count days between today and the last "bad" purchase
+        val lastBadDay = badSpendingDays.firstOrNull() ?: return 30 // Max 30 if they've been perfect
 
-                val hasNonEssentialExpense = dailyTransactions.any {
-                    it.type == TransactionType.EXPENSE && !it.isEssential
-                }
-
-                if (hasNonEssentialExpense) {
-                    break // Streak broken
-                } else {
-                    streak++
-                    currentDate = currentDate.minusDays(1)
-                }
-            }
-            streak
-        }
+        return ChronoUnit.DAYS.between(lastBadDay, today).toInt()
     }
 }
