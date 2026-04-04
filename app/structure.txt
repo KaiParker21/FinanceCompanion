@@ -1,0 +1,45 @@
+com.yourname.financecompanion
+│
+├── FinanceApplication.kt       ✅ (Done)
+├── MainActivity.kt             (We will update this later)
+│
+├── di/
+│   └── AppContainer.kt         ✅ (Done)
+│
+├── domain/
+│   ├── model/
+│   │   └── Transaction.kt      ✅ (Done)
+│   ├── repository/
+│   │   └── TransactionRepository.kt ✅ (Done)
+│   └── usecase/
+│       ├── GetDashboardStatsUseCase.kt
+│       ├── AddTransactionUseCase.kt
+│       └── CalculateStreakUseCase.kt
+│
+├── data/
+│   ├── local/
+│   │   ├── entity/
+│   │   │   └── TransactionEntity.kt ✅ (Done)
+│   │   ├── dao/
+│   │   │   └── TransactionDao.kt    ✅ (Done)
+│   │   ├── Converters.kt            ⏳ (Next)
+│   │   └── FinanceDatabase.kt       ⏳ (Next)
+│   ├── remote/
+│   │   └── FirebaseDataSource.kt    (For later cloud sync)
+│   ├── mapper/
+│   │   └── TransactionMapper.kt     ⏳ (Next)
+│   └── repository/
+│       └── TransactionRepositoryImpl.kt ⏳ (Next)
+│
+└── presentation/
+    ├── theme/                  (Colors, Typography, Shapes)
+    ├── navigation/
+    │   └── FinanceNavGraph.kt
+    ├── home/
+    │   ├── HomeViewModel.kt
+    │   └── HomeScreen.kt
+    ├── transactions/
+    │   ├── AddTransactionSheet.kt
+    │   └── TransactionListScreen.kt
+    └── insights/
+        └── InsightsScreen.kt
