@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skye.financecompanion.presentation.AppViewModelProvider
 import com.skye.financecompanion.presentation.MainScreen
 import com.skye.financecompanion.presentation.home.HomeViewModel
+import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
 import com.skye.financecompanion.ui.theme.FinanceCompanionTheme
 
 class MainActivity :
@@ -29,9 +30,13 @@ class MainActivity :
                 ) {
                     // Ask Compose to create our ViewModel using our custom Factory!
                     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+                    val historyViewModel: TransactionListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
 
-                    MainScreen(homeViewModel = homeViewModel)
+                    MainScreen(
+                        homeViewModel = homeViewModel,
+                        transactionListViewModel = historyViewModel
+                    )
 
                 }
             }

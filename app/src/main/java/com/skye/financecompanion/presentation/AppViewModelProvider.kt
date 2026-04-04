@@ -6,14 +6,11 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.skye.financecompanion.FinanceApplication
 import com.skye.financecompanion.presentation.home.HomeViewModel
+import com.skye.financecompanion.presentation.transactions.TransactionListViewModel // ADD THIS
 
-/**
- * Provides Factory to create instances of ViewModels for the entire app.
- */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
 
-        // Initializer for HomeViewModel
         initializer {
             val application = (this[APPLICATION_KEY] as FinanceApplication)
             val container = application.container
@@ -24,6 +21,14 @@ object AppViewModelProvider {
             )
         }
 
-        // As we build more screens (Transactions, Insights), we will add their ViewModels here!
+        // ADD THIS NEW INITIALIZER
+        initializer {
+            val application = (this[APPLICATION_KEY] as FinanceApplication)
+            val container = application.container
+
+            TransactionListViewModel(
+                repository = container.transactionRepository
+            )
+        }
     }
 }

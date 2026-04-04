@@ -16,9 +16,13 @@ import com.skye.financecompanion.presentation.insights.InsightsScreen
 import com.skye.financecompanion.presentation.navigation.Screen
 import com.skye.financecompanion.presentation.transactions.AddTransactionDialog
 import com.skye.financecompanion.presentation.transactions.TransactionListScreen
+import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
 
 @Composable
-fun MainScreen(homeViewModel: HomeViewModel) {
+fun MainScreen(
+    homeViewModel: HomeViewModel,
+    transactionListViewModel: TransactionListViewModel
+) {
     val navController = rememberNavController()
     var showAddDialog by remember { mutableStateOf(false) }
 
@@ -67,7 +71,7 @@ fun MainScreen(homeViewModel: HomeViewModel) {
                 )
             }
             composable(Screen.Transactions.route) {
-                TransactionListScreen()
+                TransactionListScreen(viewModel = transactionListViewModel)
             }
             composable(Screen.Insights.route) {
                 InsightsScreen()
