@@ -15,6 +15,7 @@ import com.skye.financecompanion.presentation.auth.RegisterScreen
 import com.skye.financecompanion.presentation.auth.SplashScreen
 import com.skye.financecompanion.presentation.home.HomeViewModel
 import com.skye.financecompanion.presentation.insights.InsightsViewModel
+import com.skye.financecompanion.presentation.profile.ProfileViewModel
 import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
 
 @Composable
@@ -22,6 +23,7 @@ fun RootNavGraph(
     authViewModel: AuthViewModel,
     homeViewModel: HomeViewModel,
     transactionListViewModel: TransactionListViewModel,
+    profileViewModel: ProfileViewModel,
     insightsViewModel: InsightsViewModel
 ) {
     val navController = rememberNavController()
@@ -101,6 +103,7 @@ fun RootNavGraph(
                 homeViewModel = homeViewModel,
                 transactionListViewModel = transactionListViewModel,
                 insightsViewModel = insightsViewModel,
+                profileViewModel = profileViewModel,
                 onLogoutClick = { authViewModel.logout() }
             )
         }

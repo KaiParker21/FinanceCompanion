@@ -23,6 +23,7 @@ import com.skye.financecompanion.presentation.auth.RegisterScreen
 import com.skye.financecompanion.presentation.home.HomeViewModel
 import com.skye.financecompanion.presentation.insights.InsightsViewModel
 import com.skye.financecompanion.presentation.navigation.RootNavGraph
+import com.skye.financecompanion.presentation.profile.ProfileViewModel
 import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
 
 class MainActivity : ComponentActivity() {
@@ -41,13 +42,16 @@ class MainActivity : ComponentActivity() {
                     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
                     val historyViewModel: TransactionListViewModel = viewModel(factory = AppViewModelProvider.Factory)
                     val insightsViewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+                    val profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
+
 
                     // 2. Hand control over to the Root Navigation Graph
                     RootNavGraph(
                         authViewModel = authViewModel,
                         homeViewModel = homeViewModel,
                         transactionListViewModel = historyViewModel,
-                        insightsViewModel = insightsViewModel
+                        insightsViewModel = insightsViewModel,
+                        profileViewModel = profileViewModel
                     )
                 }
             }

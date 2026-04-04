@@ -15,6 +15,8 @@ import com.skye.financecompanion.presentation.home.HomeViewModel
 import com.skye.financecompanion.presentation.insights.InsightsScreen
 import com.skye.financecompanion.presentation.insights.InsightsViewModel
 import com.skye.financecompanion.presentation.navigation.Screen
+import com.skye.financecompanion.presentation.profile.ProfileScreen
+import com.skye.financecompanion.presentation.profile.ProfileViewModel
 import com.skye.financecompanion.presentation.transactions.AddTransactionDialog
 import com.skye.financecompanion.presentation.transactions.TransactionListScreen
 import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
@@ -24,6 +26,7 @@ fun MainScreen(
     homeViewModel: HomeViewModel,
     transactionListViewModel: TransactionListViewModel,
     insightsViewModel: InsightsViewModel,
+    profileViewModel: ProfileViewModel,
     onLogoutClick: () -> Unit
 ) {
     val navController = rememberNavController()
@@ -32,7 +35,8 @@ fun MainScreen(
     val items = listOf(
         Screen.Home,
         Screen.Transactions,
-        Screen.Insights
+        Screen.Insights,
+        Screen.Profile
     )
 
     Scaffold(
@@ -79,6 +83,12 @@ fun MainScreen(
             }
             composable(Screen.Insights.route) {
                 InsightsScreen(viewModel = insightsViewModel)
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    onLogoutClick = onLogoutClick
+                )
             }
         }
 
