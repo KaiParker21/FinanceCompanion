@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class TransactionListUiState(
     val transactions: List<Transaction> = emptyList(),
@@ -31,4 +32,10 @@ class TransactionListViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = TransactionListUiState()
         )
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.deleteTransaction(transaction)
+        }
+    }
 }

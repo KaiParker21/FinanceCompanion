@@ -1,15 +1,20 @@
 package com.skye.financecompanion.presentation.transactions
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skye.financecompanion.domain.model.Transaction
@@ -55,8 +60,50 @@ fun TransactionListScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
 
+                // UPDATED THIS BLOCK for Swipe to Delete
                 items(uiState.transactions, key = { it.id }) { transaction ->
-                    HistoryTransactionItem(transaction)
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { dismissValue ->
+                            // If they swipe fully to either side, trigger the delete!
+                            if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
+                                viewModel.deleteTransaction(transaction)
+                                true // Tell the UI to remove the item from screen
+                            } else {
+                                false
+                            }
+                        }
+                    )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            // The red background that reveals itself as you swipe
+                            val color by animateColorAsState(
+                                targetValue = if (dismissState.targetValue != SwipeToDismissBoxValue.Settled) {
+                                    MaterialTheme.colorScheme.errorContainer
+                                } else {
+                                    Color.Transparent
+                                }, label = "swipe_color"
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(color, RoundedCornerShape(20.dp))
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.CenterEnd // Put the trash can on the right
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete Transaction",
+                                    tint = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                    ) {
+                        // The actual card content
+                        HistoryTransactionItem(transaction)
+                    }
                 }
 
                 item { Spacer(modifier = Modifier.height(32.dp)) }
@@ -65,7 +112,7 @@ fun TransactionListScreen(
     }
 }
 
-// We recreate a slightly different item card for the history screen to show more details (like the note)
+// ... Keep your existing HistoryTransactionItem exactly as it was below this point! ...
 @Composable
 private fun HistoryTransactionItem(transaction: Transaction) {
     val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
