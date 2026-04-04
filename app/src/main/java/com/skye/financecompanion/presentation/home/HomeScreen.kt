@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skye.financecompanion.domain.model.Transaction
@@ -107,7 +108,14 @@ fun HomeScreen(
 
 //                item { Spacer(modifier = Modifier.height(24.dp)) }
 
-                item { DashboardHeader(uiState.balance, uiState.currentStreak) }
+                item {
+                    DashboardHeader(
+                        uiState.balance,
+                        uiState.currentStreak,
+                        uiState.totalIncome,
+                        uiState.totalExpense
+                    )
+                }
 
                 item {
                     Text(
@@ -132,7 +140,12 @@ fun HomeScreen(
 }
 
 @Composable
-private fun DashboardHeader(balance: Double, streak: Int) {
+private fun DashboardHeader(
+    balance: Double,
+    streak: Int,
+    income: Double,
+    expense: Double
+) {
     // Material 3 Expressive focuses on large, bold headers and soft containers
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -156,6 +169,24 @@ private fun DashboardHeader(balance: Double, streak: Int) {
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SummaryItem(
+                    label = "Income",
+                    amount = income,
+                    color = MaterialTheme.colorScheme.primary // Green-ish
+                )
+                SummaryItem(
+                    label = "Expenses",
+                    amount = expense,
+                    color = MaterialTheme.colorScheme.error // Red-ish
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -245,6 +276,18 @@ private fun EmptyStateMessage() {
             text = "Tap the + button to add your first transaction.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+    }
+}
+
+@Composable
+fun SummaryItem(label: String, amount: Double, color: Color) {
+    Column {
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = color)
+        Text(
+            text = "$${String.format("%.2f", amount)}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
         )
     }
 }

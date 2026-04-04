@@ -14,6 +14,8 @@ import java.time.LocalDate
 data class HomeUiState(
     val balance: Double = 0.0,
     val currentStreak: Int = 0,
+    val totalIncome: Double = 0.0,
+    val totalExpense: Double = 0.0,
     val recentTransactions: List<Transaction> = emptyList(),
     val isLoading: Boolean = true
 )
@@ -29,6 +31,8 @@ class HomeViewModel(
         transactionRepository.getAllTransactions()
     ) { balance, transactions ->
         // We calculate the streak dynamically based on the transactions retrieved
+        val income = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
+        val expense = transactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
         val streak = calculateStreakUseCase(transactions)
 
         HomeUiState(
