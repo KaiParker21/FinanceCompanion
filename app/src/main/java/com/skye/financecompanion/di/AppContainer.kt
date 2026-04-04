@@ -6,13 +6,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.skye.financecompanion.data.local.FinanceDatabase
 import com.skye.financecompanion.data.repository.TransactionRepositoryImpl
 import com.skye.financecompanion.domain.repository.TransactionRepository
+import com.skye.financecompanion.domain.usecase.CalculateStreakUseCase
 
 // We will import the repository later when we build it
 
 interface AppContainer {
     val auth: FirebaseAuth
     val firestore: FirebaseFirestore
-     val transactionRepository: TransactionRepository
+    val transactionRepository: TransactionRepository
+    val calculateStreakUseCase: CalculateStreakUseCase
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -32,5 +34,8 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     override val transactionRepository: TransactionRepository by lazy {
         TransactionRepositoryImpl(database.transactionDao)
     }
-// We will initialize the Room Database and Repository here later
+
+    override val calculateStreakUseCase: CalculateStreakUseCase by lazy {
+        CalculateStreakUseCase(transactionRepository)
+    }
 }
