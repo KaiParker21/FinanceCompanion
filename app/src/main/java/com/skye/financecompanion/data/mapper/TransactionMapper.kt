@@ -1,0 +1,32 @@
+package com.skye.financecompanion.data.mapper
+
+import com.skye.financecompanion.data.local.entity.TransactionEntity
+import com.skye.financecompanion.domain.model.Transaction
+import java.time.Instant
+import java.time.ZoneId
+
+// Extension function: Translates Database Entity -> Pure Domain Model
+fun TransactionEntity.toDomain(): Transaction {
+    return Transaction(
+        id = id,
+        amount = amount,
+        type = type,
+        category = category,
+        date = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.systemDefault()).toLocalDate(),
+        note = note,
+        isEssential = isEssential
+    )
+}
+
+// Extension function: Translates Pure Domain Model -> Database Entity
+fun Transaction.toEntity(): TransactionEntity {
+    return TransactionEntity(
+        id = id,
+        amount = amount,
+        type = type,
+        category = category,
+        dateMillis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+        note = note,
+        isEssential = isEssential
+    )
+}

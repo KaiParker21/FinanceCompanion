@@ -6,13 +6,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
-    // We use Flow so the UI instantly updates if the database changes
     @Query("SELECT * FROM transactions ORDER BY dateMillis DESC")
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
+    // Removed 'suspend' and the return types!
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTransaction(transaction: TransactionEntity)
+    fun insertTransaction(transaction: TransactionEntity)
 
+    // Removed 'suspend' and the return types!
     @Delete
-    suspend fun deleteTransaction(transaction: TransactionEntity)
+    fun deleteTransaction(transaction: TransactionEntity)
 }
