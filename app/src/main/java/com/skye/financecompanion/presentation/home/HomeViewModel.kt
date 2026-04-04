@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 // This data class represents the exact state of the Home Screen at any given moment
 data class HomeUiState(
@@ -41,4 +42,26 @@ class HomeViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = HomeUiState(isLoading = true)
     )
+
+    // ADD THIS FUNCTION at the bottom of HomeViewModel
+    fun addTransaction(
+        amount: Double,
+        type: com.skye.financecompanion.domain.model.TransactionType,
+        category: com.skye.financecompanion.domain.model.Category,
+        note: String,
+        isEssential: Boolean
+    ) {
+        viewModelScope.launch {
+            val transaction = com.skye.financecompanion.domain.model.Transaction(
+                amount = amount,
+                type = type,
+                category = category,
+                date = java.time.LocalDate.now(), // Defaults to today
+                note = note,
+                isEssential = isEssential
+            )
+            transactionRepository.insertTransaction(transaction)
+        }
+    }
+
 }
