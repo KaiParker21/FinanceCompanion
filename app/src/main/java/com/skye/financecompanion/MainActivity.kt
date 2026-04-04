@@ -5,23 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skye.financecompanion.presentation.AppViewModelProvider
-import com.skye.financecompanion.presentation.home.HomeScreen
+import com.skye.financecompanion.presentation.MainScreen
 import com.skye.financecompanion.presentation.home.HomeViewModel
-import com.skye.financecompanion.presentation.transactions.AddTransactionDialog
 import com.skye.financecompanion.ui.theme.FinanceCompanionTheme
 
 class MainActivity :
@@ -40,22 +30,8 @@ class MainActivity :
                     // Ask Compose to create our ViewModel using our custom Factory!
                     val homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
-                    var showAddDialog by remember { mutableStateOf(false) }
 
-                    HomeScreen(
-                        viewModel = homeViewModel,
-                        onAddTransactionClick = { showAddDialog = true }
-                    )
-
-                    if (showAddDialog) {
-                        // UPDATED TO DIALOG
-                        AddTransactionDialog(
-                            onDismiss = { showAddDialog = false },
-                            onSave = { amount, type, category, note, isEssential ->
-                                homeViewModel.addTransaction(amount, type, category, note, isEssential)
-                            }
-                        )
-                    }
+                    MainScreen(homeViewModel = homeViewModel)
 
                 }
             }
