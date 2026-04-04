@@ -9,29 +9,29 @@ import java.time.LocalDate
 class CalculateStreakUseCase(
     private val repository: TransactionRepository
 ) {
-    /**
-     * The 'invoke' operator allows us to call this class like a function.
-     */
     operator fun invoke(): Flow<Int> {
         return repository.getAllTransactions().map { transactions ->
+            if (transactions.isEmpty()) return@map 0
+
             var streak = 0
             var currentDate = LocalDate.now()
 
-            // Group transactions by date for fast lookup
+            // Find the oldest transaction date so we know when to stop looping!
+            val oldestDate = transactions.minOfOrNull { it.date } ?: return@map 0
+
             val transactionsByDate = transactions.groupBy { it.date }
 
-            while (true) {
+            // FIX: Only loop until we hit the oldest transaction date
+            while (!currentDate.isBefore(oldestDate)) {
                 val dailyTransactions = transactionsByDate[currentDate] ?: emptyList()
 
-                // If they spent on something non-essential, the streak ends
                 val hasNonEssentialExpense = dailyTransactions.any {
                     it.type == TransactionType.EXPENSE && !it.isEssential
                 }
 
                 if (hasNonEssentialExpense) {
-                    break
+                    break // Streak broken
                 } else {
-                    // No bad spending today! Increment and check yesterday
                     streak++
                     currentDate = currentDate.minusDays(1)
                 }
