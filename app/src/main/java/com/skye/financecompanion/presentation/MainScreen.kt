@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.skye.financecompanion.presentation.home.HomeScreen
 import com.skye.financecompanion.presentation.home.HomeViewModel
 import com.skye.financecompanion.presentation.insights.InsightsScreen
+import com.skye.financecompanion.presentation.insights.InsightsViewModel
 import com.skye.financecompanion.presentation.navigation.Screen
 import com.skye.financecompanion.presentation.transactions.AddTransactionDialog
 import com.skye.financecompanion.presentation.transactions.TransactionListScreen
@@ -21,7 +22,8 @@ import com.skye.financecompanion.presentation.transactions.TransactionListViewMo
 @Composable
 fun MainScreen(
     homeViewModel: HomeViewModel,
-    transactionListViewModel: TransactionListViewModel
+    transactionListViewModel: TransactionListViewModel,
+    insightsViewModel: InsightsViewModel
 ) {
     val navController = rememberNavController()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -74,7 +76,7 @@ fun MainScreen(
                 TransactionListScreen(viewModel = transactionListViewModel)
             }
             composable(Screen.Insights.route) {
-                InsightsScreen()
+                InsightsScreen(viewModel = insightsViewModel)
             }
         }
 
