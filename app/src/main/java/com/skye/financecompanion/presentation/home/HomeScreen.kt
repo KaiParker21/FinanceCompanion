@@ -5,7 +5,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,12 +24,26 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    onAddTransactionClick: () -> Unit // We'll pass navigation events up
+    onAddTransactionClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     // Collect the state from the ViewModel. This triggers recomposition when data changes.
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Dashboard", fontWeight = FontWeight.Bold) },
+                actions = {
+                    IconButton(onClick = onLogoutClick) {
+                        Icon(Icons.Default.Logout, contentDescription = "Log Out")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTransactionClick,

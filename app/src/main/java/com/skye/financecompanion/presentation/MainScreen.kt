@@ -23,7 +23,8 @@ import com.skye.financecompanion.presentation.transactions.TransactionListViewMo
 fun MainScreen(
     homeViewModel: HomeViewModel,
     transactionListViewModel: TransactionListViewModel,
-    insightsViewModel: InsightsViewModel
+    insightsViewModel: InsightsViewModel,
+    onLogoutClick: () -> Unit
 ) {
     val navController = rememberNavController()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -69,7 +70,8 @@ fun MainScreen(
             composable(Screen.Home.route) {
                 HomeScreen(
                     viewModel = homeViewModel,
-                    onAddTransactionClick = { showAddDialog = true }
+                    onAddTransactionClick = { showAddDialog = true },
+                    onLogoutClick = onLogoutClick
                 )
             }
             composable(Screen.Transactions.route) {
