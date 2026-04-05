@@ -25,6 +25,7 @@ import com.skye.financecompanion.presentation.insights.InsightsViewModel
 import com.skye.financecompanion.presentation.navigation.RootNavGraph
 import com.skye.financecompanion.presentation.profile.ProfileViewModel
 import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
+import com.skye.financecompanion.ui.theme.FinanceCompanionTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            MaterialTheme {
+            FinanceCompanionTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
