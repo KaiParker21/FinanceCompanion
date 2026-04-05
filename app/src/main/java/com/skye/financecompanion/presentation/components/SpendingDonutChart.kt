@@ -48,7 +48,7 @@ fun SpendingDonutChart(
         modifier = modifier.size(280.dp),
         contentAlignment = Alignment.Center
     ) {
-        val trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+        val trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
 
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 36.dp.toPx()

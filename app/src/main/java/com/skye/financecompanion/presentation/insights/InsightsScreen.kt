@@ -57,8 +57,8 @@ fun InsightsScreen(
 
         // Define our custom Midnight Ocean palette for the chart
         val chartColors = listOf(
-            MaterialTheme.colorScheme.tertiary,      // #B3CFE5 - Ice Blue (The "Pop")
             MaterialTheme.colorScheme.inversePrimary,  // Vibrant Sky Blue
+            MaterialTheme.colorScheme.tertiary,      // #B3CFE5 - Ice Blue (The "Pop")
             Color(0xFF6495ED),                        // Cornflower Blue (A classic, clean blue)
             Color(0xFF4682B4),                        // Steel Blue (Professional & crisp)
             MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f) // Muted Deep Sea

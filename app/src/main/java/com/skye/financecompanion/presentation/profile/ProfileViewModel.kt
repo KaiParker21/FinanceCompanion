@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
+import java.util.UUID
 
 class ProfileViewModel(
     private val auth: FirebaseAuth,
@@ -32,10 +33,7 @@ class ProfileViewModel(
         viewModelScope.launch {
             _syncState.value = "Backing up..."
             try {
-                // 1. Grab all current local transactions
                 val localTransactions = repository.getAllTransactions().first()
-
-                // 2. Prepare a massive Firestore batch write
                 val batch = firestore.batch()
                 val userRef = firestore.collection("users").document(userId)
 
@@ -45,7 +43,7 @@ class ProfileViewModel(
                         "amount" to tx.amount,
                         "type" to tx.type.name,
                         "category" to tx.category.name,
-                        "date" to tx.date.toString(), // Firestore doesn't like Java LocalDates directly
+                        "date" to tx.date.toString(),
                         "note" to tx.note,
                         "isEssential" to tx.isEssential
                     )
@@ -70,17 +68,14 @@ class ProfileViewModel(
 
                 snapshot.documents.forEach { doc ->
                     val transaction = Transaction(
-                        // doc.id is the unique String ID from Firestore.
-                        // This ensures the local Room ID matches the Cloud ID!
                         id = doc.id,
                         amount = doc.getDouble("amount") ?: 0.0,
                         type = TransactionType.valueOf(doc.getString("type") ?: "EXPENSE"),
-                        category = Category.valueOf(doc.getString("category") ?: "OTHER"),
+                        category = Category.fromString(doc.getString("category") ?: "OTHER"),
                         date = LocalDate.parse(doc.getString("date") ?: LocalDate.now().toString()),
                         note = doc.getString("note") ?: "",
                         isEssential = doc.getBoolean("isEssential") ?: true
                     )
-
                     repository.insertTransaction(transaction)
                 }
                 _syncState.value = "Restore complete!"
@@ -88,5 +83,31 @@ class ProfileViewModel(
                 _syncState.value = "Restore failed: ${e.message}"
             }
         }
+    }
+
+    // NEW: The "Evaluator Friendly" Mock Data Generator
+    fun loadMockData() {
+        viewModelScope.launch {
+            _syncState.value = "Loading demo data..."
+            val today = LocalDate.now()
+
+            val mockData = listOf(
+                Transaction(UUID.randomUUID().toString(), 4500.0, TransactionType.INCOME, Category.SALARY, today.minusDays(5), "Monthly Salary", true),
+                Transaction(UUID.randomUUID().toString(), 1200.0, TransactionType.EXPENSE, Category.BILLS, today.minusDays(4), "Rent", true),
+                Transaction(UUID.randomUUID().toString(), 45.50, TransactionType.EXPENSE, Category.FOOD, today.minusDays(3), "Groceries", true),
+                Transaction(UUID.randomUUID().toString(), 15.00, TransactionType.EXPENSE, Category.TRANSPORT, today.minusDays(2), "Train Ticket", true),
+                Transaction(UUID.randomUUID().toString(), 120.0, TransactionType.EXPENSE, Category.SHOPPING, today.minusDays(1), "New Shoes", false), // Breaks streak
+                Transaction(UUID.randomUUID().toString(), 25.00, TransactionType.EXPENSE, Category.FOOD, today, "Lunch out", false) // Breaks streak today
+            )
+
+            mockData.forEach { tx ->
+                repository.insertTransaction(tx)
+            }
+            _syncState.value = "Demo data loaded!"
+        }
+    }
+
+    fun resetSyncState() {
+        _syncState.value = "Idle"
     }
 }
