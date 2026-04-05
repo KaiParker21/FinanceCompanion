@@ -31,6 +31,7 @@ fun SpendingDonutChart(
 ) {
     val total = slices.sumOf { it.amount.toDouble() }.toFloat()
 
+
     // Smooth sweep animation on load
     var animationPlayed by remember { mutableStateOf(false) }
     val animateSweep by animateFloatAsState(
@@ -47,6 +48,8 @@ fun SpendingDonutChart(
         modifier = modifier.size(280.dp),
         contentAlignment = Alignment.Center
     ) {
+        val trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 36.dp.toPx()
             val innerRadius = (size.minDimension - strokeWidth) / 2
@@ -54,7 +57,7 @@ fun SpendingDonutChart(
 
             // Draw the track background (soft variant color)
             drawCircle(
-                color = Color.Gray.copy(alpha = 0.1f),
+                color = trackColor,
                 radius = innerRadius,
                 center = center,
                 style = Stroke(width = strokeWidth)

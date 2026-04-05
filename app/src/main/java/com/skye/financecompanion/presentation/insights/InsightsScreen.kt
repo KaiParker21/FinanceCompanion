@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skye.financecompanion.domain.model.Category
@@ -56,13 +57,12 @@ fun InsightsScreen(
 
         // Define our custom Midnight Ocean palette for the chart
         val chartColors = listOf(
-            MaterialTheme.colorScheme.primary,       // #1A3D63
-            MaterialTheme.colorScheme.secondary,     // #4A7FA7
-            MaterialTheme.colorScheme.tertiary,      // #B3CFE5
-            MaterialTheme.colorScheme.primaryContainer,
-            MaterialTheme.colorScheme.secondaryContainer
+            MaterialTheme.colorScheme.tertiary,      // #B3CFE5 - Ice Blue (The "Pop")
+            MaterialTheme.colorScheme.inversePrimary,  // Vibrant Sky Blue
+            Color(0xFF6495ED),                        // Cornflower Blue (A classic, clean blue)
+            Color(0xFF4682B4),                        // Steel Blue (Professional & crisp)
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f) // Muted Deep Sea
         )
-
         // Map the real data to the ChartSlice data class
         val slices = uiState.categoryTotals.mapIndexed { index, categoryTotal ->
             ChartSlice(
