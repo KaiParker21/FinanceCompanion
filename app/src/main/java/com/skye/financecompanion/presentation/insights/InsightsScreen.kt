@@ -108,10 +108,11 @@ private fun CategoryStatItem(category: Category, amount: Double, totalExpense: D
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = category.icon,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(end = 12.dp)
+            Icon(
+                imageVector = category.icon,
+                contentDescription = category.displayName,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.tertiary
             )
             Text(
                 text = category.displayName,

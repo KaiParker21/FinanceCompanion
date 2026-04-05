@@ -104,11 +104,21 @@ fun AddTransactionDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(Category.values()) { category ->
+                    items(Category.entries.toTypedArray()) { category ->
                         ElevatedFilterChip(
                             selected = selectedCategory == category,
                             onClick = { selectedCategory = category },
-                            label = { Text("${category.icon} ${category.displayName}") }
+                            label = {
+                                Text(category.displayName)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = category.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp) // Standard size for chips
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp) // Matches your "Ocean" theme
                         )
                     }
                 }

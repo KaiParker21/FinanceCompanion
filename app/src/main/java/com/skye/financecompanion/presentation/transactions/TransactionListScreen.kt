@@ -138,7 +138,12 @@ private fun HistoryTransactionItem(transaction: Transaction) {
                 modifier = Modifier.size(56.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(text = transaction.category.icon, style = MaterialTheme.typography.headlineSmall)
+                    Icon(
+                        imageVector = transaction.category.icon,
+                        contentDescription = transaction.category.displayName,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
 
