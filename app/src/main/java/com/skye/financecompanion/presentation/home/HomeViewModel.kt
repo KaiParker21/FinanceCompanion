@@ -38,6 +38,8 @@ class HomeViewModel(
         HomeUiState(
             balance = balance,
             currentStreak = streak,
+            totalIncome = income,
+            totalExpense = expense,
             recentTransactions = transactions.take(5),
             isLoading = false
         )
