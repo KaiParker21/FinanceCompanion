@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skye.financecompanion.domain.model.Transaction
@@ -91,10 +93,12 @@ fun TransactionListScreen(
                     item { Spacer(modifier = Modifier.height(8.dp)) }
 
                     items(uiState.transactions, key = { it.id }) { transaction ->
+                        val haptic = LocalHapticFeedback.current
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = { dismissValue ->
                                 if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
                                     viewModel.deleteTransaction(transaction)
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     true
                                 } else {
                                     false

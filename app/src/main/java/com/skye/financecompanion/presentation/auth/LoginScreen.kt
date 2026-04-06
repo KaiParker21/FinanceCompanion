@@ -27,7 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,6 +56,8 @@ fun LoginScreen(
     val focusManager = LocalFocusManager.current
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
+
+    val haptic = LocalHapticFeedback.current
 
     // Trigger for the cascading entrance animations
     var isVisible by remember { mutableStateOf(false) }
@@ -239,6 +243,7 @@ fun LoginScreen(
                             onClick = {
                                 focusManager.clearFocus()
                                 viewModel.login(email.trim(), password)
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                             enabled = !isLoading,
                             modifier = Modifier

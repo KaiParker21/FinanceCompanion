@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -46,6 +48,7 @@ fun MainScreen(
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
+                val haptic = LocalHapticFeedback.current
 
                 items.forEach { screen ->
                     NavigationBarItem(
@@ -54,10 +57,10 @@ fun MainScreen(
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen.route) {
-                                // Pop up to the start destination of the graph to avoid building up a large stack of destinations
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                 popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true // Avoid multiple copies of the same destination
-                                restoreState = true // Restore state when reselecting a previously selected item
+                                launchSingleTop = true
+                                restoreState = true
                             }
                         }
                     )

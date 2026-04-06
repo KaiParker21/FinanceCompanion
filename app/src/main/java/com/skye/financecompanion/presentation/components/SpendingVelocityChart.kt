@@ -19,7 +19,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -124,11 +126,14 @@ fun SpendingVelocityChart(
             }
         }
 
-        // --- 3. THE CANVAS CHART ---
+        val haptic = LocalHapticFeedback.current
+        var lastHapticIndex by remember { mutableStateOf<Int?>(null) }
+
+
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp) // Slightly taller to fit the X-axis text
+                .height(220.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = { offset ->
@@ -150,7 +155,6 @@ fun SpendingVelocityChart(
             val canvasWidth = size.width
             val canvasHeight = size.height
 
-            // Padding for the Axes
             val leftPadding = 100f
             val bottomPadding = 60f
 
@@ -158,18 +162,15 @@ fun SpendingVelocityChart(
             val graphHeight = canvasHeight - bottomPadding
 
             val rawMax = dataPoints.maxOfOrNull { it.amount } ?: 0f
-            // Dynamic Ceiling (Round up to nearest 50 for clean Y-axis labels)
             val maxAmount = if (rawMax > 0) (ceil(rawMax / 50.0) * 50).toFloat() else 100f
 
             val spacingX = graphWidth / (dataPoints.size - 1).coerceAtLeast(1).toFloat()
 
-            // --- DRAW Y-AXIS (Amounts & Gridlines) ---
             val ySteps = 4
             for (i in 0..ySteps) {
                 val stepAmount = maxAmount * (i.toFloat() / ySteps)
                 val yPos = graphHeight - ((stepAmount / maxAmount) * graphHeight)
 
-                // Grid line
                 drawLine(
                     color = gridColor,
                     start = Offset(leftPadding, yPos),
@@ -178,29 +179,24 @@ fun SpendingVelocityChart(
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                 )
 
-                // Y-Axis Text
                 drawText(
                     textMeasurer = textMeasurer,
                     text = "₹${stepAmount.toInt()}",
-                    topLeft = Offset(0f, yPos - 20f), // Shift up slightly to center on line
+                    topLeft = Offset(0f, yPos - 20f),
                     style = TextStyle(color = textColor, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 )
             }
 
-            // --- CALCULATE DATA POINTS ---
             val points = dataPoints.mapIndexed { index, point ->
                 val x = leftPadding + (index * spacingX)
                 val y = graphHeight - ((point.amount / maxAmount) * graphHeight)
                 Offset(x, y)
             }
 
-            // Snapping logic for touch
             if (touchX >= leftPadding) {
                 selectedIndex = ((touchX - leftPadding) / spacingX).roundToInt().coerceIn(0, points.size - 1)
             }
 
-            // --- DRAW X-AXIS (Dates) ---
-            // For 30 days, we don't want to draw 30 labels (it overlaps). We draw ~5.
             val labelStep = if (dataPoints.size > 10) dataPoints.size / 5 else 1
 
             dataPoints.forEachIndexed { index, point ->
@@ -211,13 +207,12 @@ fun SpendingVelocityChart(
                     drawText(
                         textMeasurer = textMeasurer,
                         text = dateText,
-                        topLeft = Offset(xPos - 30f, graphHeight + 16f), // Center text below tick
+                        topLeft = Offset(xPos - 30f, graphHeight + 16f),
                         style = TextStyle(color = textColor, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                     )
                 }
             }
 
-            // --- DRAW THE SPLINE CURVE ---
             val path = Path()
             val fillPath = Path()
 
@@ -239,7 +234,6 @@ fun SpendingVelocityChart(
                 fillPath.close()
             }
 
-            // Animate drawing from left to right
             clipRect(right = leftPadding + (graphWidth * animationProgress.value)) {
 
                 drawPath(
@@ -257,11 +251,10 @@ fun SpendingVelocityChart(
                     style = Stroke(width = 8f, cap = StrokeCap.Round, join = StrokeJoin.Round)
                 )
 
-                // --- DRAW INTERACTIVE CROSSHAIR ---
-                if (selectedIndex != null) {
+                if (selectedIndex != null && selectedIndex != lastHapticIndex) {
                     val targetPoint = points[selectedIndex!!]
-
-                    // Vertical Line
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    lastHapticIndex = selectedIndex
                     drawLine(
                         color = lineColor.copy(alpha = 0.5f),
                         start = Offset(targetPoint.x, 0f),
@@ -270,11 +263,8 @@ fun SpendingVelocityChart(
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
                     )
 
-                    // Glow Dot
                     drawCircle(color = lineColor.copy(alpha = 0.3f), radius = 24f, center = targetPoint)
-                    // Solid Dot
                     drawCircle(color = lineColor, radius = 12f, center = targetPoint)
-                    // White Center
                     drawCircle(color = Color.White, radius = 6f, center = targetPoint)
                 }
             }
