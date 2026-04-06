@@ -1,6 +1,11 @@
 package com.skye.financecompanion.presentation.profile
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,9 +20,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.skye.financecompanion.data.service.hasMagicTrackingPermission
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +40,22 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit
 ) {
     val syncState by viewModel.syncState.collectAsState()
+    val haptic = LocalHapticFeedback.current
+
+    // Avatar spring animation state
+    var avatarScale by remember { mutableStateOf(0.5f) }
+    val animatedAvatarScale by animateFloatAsState(
+        targetValue = avatarScale,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "avatarScale"
+    )
+
+    LaunchedEffect(Unit) {
+        avatarScale = 1f // Trigger the bounce when screen opens
+    }
 
     // Auto-hide the sync message after 3 seconds
     LaunchedEffect(syncState) {
@@ -54,11 +83,13 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Avatar (Using the Rounded Person icon to match our rule)
+            // Animated Avatar
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier
+                    .size(100.dp)
+                    .scale(animatedAvatarScale)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Person,
@@ -83,7 +114,7 @@ fun ProfileScreen(
             AnimatedVisibility(visible = syncState != "Idle") {
                 Surface(
                     color = MaterialTheme.colorScheme.tertiaryContainer,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 24.dp)
@@ -97,60 +128,97 @@ fun ProfileScreen(
                         Text(
                             text = syncState,
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            // --- CLOUD SYNC CARD ---
+            // --- 1. AUTOMATION CARD ---
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Automation",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+                )
+                MagicTrackingSettingsToggle()
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // --- 2. CLOUD SYNC CARD ---
             SettingsCard(title = "Cloud Synchronization") {
                 SettingsRow(
                     icon = Icons.Rounded.CloudUpload,
                     label = "Backup to Cloud",
-                    onClick = { viewModel.backupData() }
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.backupData()
+                    }
                 )
-                Divider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
                 SettingsRow(
                     icon = Icons.Rounded.CloudDownload,
                     label = "Restore from Cloud",
-                    onClick = { viewModel.restoreData() }
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.restoreData()
+                    }
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- DEVELOPER TOOLS CARD (MOCK DATA) ---
+            // --- 3. DEVELOPER TOOLS CARD (MOCK DATA) ---
             SettingsCard(title = "Evaluator Tools") {
                 SettingsRow(
-                    icon = Icons.Rounded.AutoGraph, // A nice graph icon for data
+                    icon = Icons.Rounded.AutoGraph,
                     label = "Load Demo Data",
-                    onClick = { viewModel.loadMockData() },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.loadMockData()
+                    },
                     tint = MaterialTheme.colorScheme.tertiary
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Danger Zone Logout
             Button(
-                onClick = onLogoutClick,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onLogoutClick()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(20.dp) // Expressive rounding
             ) {
-                Icon(Icons.Rounded.Logout, contentDescription = null, tint = MaterialTheme.colorScheme.onErrorContainer)
+                Icon(Icons.Rounded.Logout, contentDescription = null)
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Log Out",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Subtle App Version Footer
+            Text(
+                text = "Finance Companion v1.0.0",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
         }
     }
 }
@@ -170,7 +238,7 @@ fun SettingsCard(
         )
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(20.dp), // Deep expressive corner radius
             colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
@@ -215,5 +283,85 @@ fun SettingsRow(
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+fun MagicTrackingSettingsToggle() {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val haptic = LocalHapticFeedback.current
+
+    // State tracks whether the permission is currently granted
+    var isEnabled by remember { mutableStateOf(context.hasMagicTrackingPermission()) }
+
+    // Re-check permission whenever the user returns to the app
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isEnabled = context.hasMagicTrackingPermission()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp), // Matched corner radius
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Rounded.AutoAwesome,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Magic Tracking",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Auto-log GPay & Paytm expenses",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    context.startActivity(intent)
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
     }
 }

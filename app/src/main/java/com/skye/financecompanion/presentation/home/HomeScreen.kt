@@ -1,5 +1,8 @@
 package com.skye.financecompanion.presentation.home
 
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -45,10 +48,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,14 +62,21 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.skye.financecompanion.data.service.hasMagicTrackingPermission
 import com.skye.financecompanion.domain.model.Transaction
 import com.skye.financecompanion.domain.model.TransactionType
+import com.skye.financecompanion.presentation.components.SmartTrackingPermissionCard
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import androidx.core.content.edit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,6 +136,31 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
+
+        val context = LocalContext.current
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val haptic = LocalHapticFeedback.current
+
+        // 1. Access the device's permanent storage
+        val sharedPreferences = context.getSharedPreferences("finance_companion_prefs", Context.MODE_PRIVATE)
+
+        var hasNotificationPermission by remember { mutableStateOf(context.hasMagicTrackingPermission()) }
+
+        // 2. Read from storage on boot. If it doesn't exist, default to 'false' (meaning they haven't dismissed it yet)
+        var hasPermanentlyDismissed by remember {
+            mutableStateOf(sharedPreferences.getBoolean("dismissed_magic_tracking", false))
+        }
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    hasNotificationPermission = context.hasMagicTrackingPermission()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
+
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -214,6 +252,24 @@ fun HomeScreen(
                         income = uiState.totalIncome,
                         expense = uiState.totalExpense
                     )
+                }
+
+                if (!hasNotificationPermission && !hasPermanentlyDismissed) {
+                    item {
+                        SmartTrackingPermissionCard(
+                            onEnableClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                context.startActivity(intent)
+                            },
+                            onDismissClick = {
+                                // 1. Save the decision to permanent storage forever
+                                sharedPreferences.edit { putBoolean("dismissed_magic_tracking", true) }
+                                // 2. Update the local state so the card vanishes instantly
+                                hasPermanentlyDismissed = true
+                            }
+                        )
+                    }
                 }
 
                 item {

@@ -1,6 +1,7 @@
 package com.skye.financecompanion.presentation.insights
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -74,11 +75,13 @@ fun InsightsScreen(
             return@Scaffold
         }
 
+        val isDark = isSystemInDarkTheme()
+
         val chartColors = listOf(
             MaterialTheme.colorScheme.inversePrimary,
             MaterialTheme.colorScheme.tertiary,
-            Color(0xFF6495ED),
-            Color(0xFF4682B4),
+            if (isDark) Color(0xFF82B1FF) else Color(0xFF2962FF),
+            if (isDark) Color(0xFF80D8FF) else Color(0xFF0091EA),
             MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)
         )
         val slices = uiState.categoryTotals.mapIndexed { index, categoryTotal ->

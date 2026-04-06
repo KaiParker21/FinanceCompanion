@@ -40,6 +40,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.ui)
     // CameraX core library using camera2 implementation
     val cameraxVersion = "1.3.1"
     implementation("androidx.camera:camera-core:$cameraxVersion")
