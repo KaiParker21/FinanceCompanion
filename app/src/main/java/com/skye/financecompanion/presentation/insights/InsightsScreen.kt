@@ -1,11 +1,30 @@
 package com.skye.financecompanion.presentation.insights
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoGraph
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,7 +42,6 @@ import com.skye.financecompanion.presentation.components.SpendingDonutChart
 fun InsightsScreen(
     viewModel: InsightsViewModel
 ) {
-    // Assuming your ViewModel exposes an InsightsUiState
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -55,20 +73,17 @@ fun InsightsScreen(
             return@Scaffold
         }
 
-        // Define our custom Midnight Ocean palette for the chart
         val chartColors = listOf(
-            MaterialTheme.colorScheme.inversePrimary,  // Vibrant Sky Blue
-            MaterialTheme.colorScheme.tertiary,      // #B3CFE5 - Ice Blue (The "Pop")
-            Color(0xFF6495ED),                        // Cornflower Blue (A classic, clean blue)
-            Color(0xFF4682B4),                        // Steel Blue (Professional & crisp)
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f) // Muted Deep Sea
+            MaterialTheme.colorScheme.inversePrimary,
+            MaterialTheme.colorScheme.tertiary,
+            Color(0xFF6495ED),
+            Color(0xFF4682B4),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)
         )
-        // Map the real data to the ChartSlice data class
         val slices = uiState.categoryTotals.mapIndexed { index, categoryTotal ->
             ChartSlice(
                 categoryName = categoryTotal.category.displayName,
                 amount = categoryTotal.totalAmount.toFloat(),
-                // Cycle through colors if there are more categories than colors
                 color = chartColors[index % chartColors.size]
             )
         }
@@ -80,9 +95,16 @@ fun InsightsScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 1. The Donut Chart
             item {
                 Spacer(modifier = Modifier.height(24.dp))
+
+                BurnRateForecastCard(
+                    currentSpend = uiState.totalExpenseAmount,
+                    projectedSpend = uiState.projectedMonthEndSpend
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 SpendingDonutChart(
                     slices = slices,
                     totalSpent = uiState.totalExpenseAmount
@@ -98,7 +120,6 @@ fun InsightsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // 2. The Legend / Category Breakdown List
             items(uiState.categoryTotals.size) { index ->
                 val categoryTotal = uiState.categoryTotals[index]
                 val color = chartColors[index % chartColors.size]
@@ -136,7 +157,6 @@ fun CategoryBreakdownItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Color Indicator Dot
             Box(
                 modifier = Modifier
                     .size(16.dp)
@@ -145,7 +165,6 @@ fun CategoryBreakdownItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Icon
             Icon(
                 imageVector = category.icon,
                 contentDescription = null,
@@ -155,7 +174,6 @@ fun CategoryBreakdownItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Text Details
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = category.displayName,
@@ -173,6 +191,62 @@ fun CategoryBreakdownItem(
                 text = "$${String.format("%.2f", amount)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black
+            )
+        }
+    }
+}
+
+@Composable
+fun BurnRateForecastCard(
+    currentSpend: Double,
+    projectedSpend: Double
+) {
+    if (currentSpend <= 0.0 || projectedSpend <= 0.0) return
+
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 24.dp),
+        shape = RoundedCornerShape(24.dp), // Expressive, deep rounding
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Rounded.AutoGraph,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "End of Month Forecast",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Based on your spending velocity, you are on track to spend:",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "$${String.format("%.2f", projectedSpend)}",
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }
