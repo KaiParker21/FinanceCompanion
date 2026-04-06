@@ -92,7 +92,7 @@ fun SpendingDonutChart(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "$${String.format("%.2f", totalSpent)}",
+                text = "₹${String.format("%.2f", totalSpent)}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface

@@ -1,5 +1,6 @@
 package com.skye.financecompanion.presentation.home
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -7,7 +8,18 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -19,21 +31,38 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.AcUnit
 import androidx.compose.material.icons.rounded.LocalFireDepartment
-import androidx.compose.material3.*
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skye.financecompanion.domain.model.Transaction
 import com.skye.financecompanion.domain.model.TransactionType
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,12 +74,32 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val haptic = LocalHapticFeedback.current
+
+    val currentHour = LocalTime.now().hour
+    val greeting = when (currentHour) {
+        in 0..11 -> "Good Morning"
+        in 12..16 -> "Good Afternoon"
+        else -> "Good Evening"
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dashboard", fontWeight = FontWeight.Black, style = MaterialTheme.typography.headlineMedium) },
+                title = {
+                    Column {
+                        Text(
+                            text = greeting,
+                            fontWeight = FontWeight.Black,
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
+                },
                 actions = {
-                    IconButton(onClick = onLogoutClick) {
+                    IconButton(onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onLogoutClick()
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Log Out")
                     }
                 },
@@ -60,9 +109,12 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            // Upgraded to Extended FAB for a flagship feel
             ExtendedFloatingActionButton(
-                onClick = onAddTransactionClick,
+                onClick = {
+                    // Add a satisfying physical click when adding a transaction
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onAddTransactionClick()
+                },
                 shape = RoundedCornerShape(20.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -81,18 +133,16 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp) // Generous breathing room
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
 
-                // 1. Premium Streak Banner
                 item {
                     val streak = uiState.currentStreak
 
-                    // 1. The Breathing Animation for the Icon
                     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                     val scale by infiniteTransition.animateFloat(
                         initialValue = 0.95f,
-                        targetValue = 1.1f,
+                        targetValue = 1.15f,
                         animationSpec = infiniteRepeatable(
                             animation = tween(1000, easing = FastOutSlowInEasing),
                             repeatMode = RepeatMode.Reverse
@@ -100,9 +150,8 @@ fun HomeScreen(
                         label = "scale"
                     )
 
-                    // 2. Custom Premium Gradients
                     val activeGradient = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFFFFB74D), Color(0xFFFF7043)) // Warm Gold to Deep Orange
+                        colors = listOf(Color(0xFFFFB74D), Color(0xFFFF7043))
                     )
                     val inactiveGradient = Brush.horizontalGradient(
                         colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
@@ -115,7 +164,6 @@ fun HomeScreen(
                         shape = RoundedCornerShape(24.dp),
                         elevation = CardDefaults.elevatedCardElevation(defaultElevation = if (streak > 0) 4.dp else 0.dp)
                     ) {
-                        // We use a Box here to apply the custom gradient Brush
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -123,8 +171,6 @@ fun HomeScreen(
                                 .padding(20.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-
-                                // The Icon Container
                                 Surface(
                                     shape = CircleShape,
                                     color = Color.White.copy(alpha = 0.2f),
@@ -137,14 +183,13 @@ fun HomeScreen(
                                             tint = if (streak > 0) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier
                                                 .size(28.dp)
-                                                .scale(if (streak > 0) scale else 1f) // Applies the breathing effect!
+                                                .scale(if (streak > 0) scale else 1f)
                                         )
                                     }
                                 }
 
                                 Spacer(modifier = Modifier.width(16.dp))
 
-                                // The Text
                                 Column {
                                     Text(
                                         text = "$streak Day Streak",
@@ -163,7 +208,6 @@ fun HomeScreen(
                     }
                 }
 
-                // 2. The Asymmetrical Balance Hero Card
                 item {
                     DashboardHeader(
                         balance = uiState.balance,
@@ -172,7 +216,6 @@ fun HomeScreen(
                     )
                 }
 
-                // 3. Recent Activity List
                 item {
                     Text(
                         text = "Recent Activity",
@@ -189,7 +232,7 @@ fun HomeScreen(
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(88.dp)) } // Padding for Extended FAB
+                item { Spacer(modifier = Modifier.height(88.dp)) }
             }
         }
     }
@@ -201,13 +244,32 @@ private fun DashboardHeader(
     income: Double,
     expense: Double
 ) {
-    // EXPRESSIVE DESIGN: Asymmetrical rounding (Large top-start and bottom-end)
     val expressiveShape = RoundedCornerShape(
         topStart = 40.dp,
         topEnd = 12.dp,
         bottomStart = 12.dp,
         bottomEnd = 40.dp
     )
+
+    // ALIVE FEATURE 1: Fixed Rolling Numbers
+    // We explicitly tell it to start at 0.0f
+    val animatedBalance = remember { Animatable(0f) }
+
+    // When the balance arrives from the ViewModel, trigger the count-up
+    LaunchedEffect(balance) {
+        animatedBalance.animateTo(
+            targetValue = balance.toFloat(),
+            animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing)
+        )
+    }
+
+    val balanceText = "₹${String.format("%,.2f", animatedBalance.value)}"
+
+    val dynamicStyle = when {
+        balanceText.length > 12 -> MaterialTheme.typography.headlineMedium // $100,000.00+
+        balanceText.length > 10 -> MaterialTheme.typography.displaySmall   // $10,000.00+
+        else -> MaterialTheme.typography.displayLarge                     // Standard
+    }
 
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -219,7 +281,7 @@ private fun DashboardHeader(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(32.dp) // Deep padding
+            modifier = Modifier.padding(32.dp)
         ) {
             Text(
                 text = "Total Balance",
@@ -227,16 +289,18 @@ private fun DashboardHeader(
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(4.dp))
+
+            // Note: We use animatedBalance.value here now!
             Text(
-                text = "$${String.format("%.2f", balance)}",
-                style = MaterialTheme.typography.displayLarge, // Massive typography
+                text = balanceText,
+                style = dynamicStyle,
                 fontWeight = FontWeight.Black,
-                letterSpacing = (-1).sp // Tighter tracking for large numbers
+                letterSpacing = (-1).sp,
+                maxLines = 1,
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Tonal Pills for Income and Expense
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -287,7 +351,7 @@ fun RowScope.SummaryPill(
         Column {
             Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
             Text(
-                text = "$${String.format("%.0f", amount)}",
+                text = "₹${String.format("%.0f", amount)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -305,11 +369,11 @@ private fun TransactionItem(transaction: Transaction) {
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.Transparent)
-            .padding(vertical = 4.dp), // Subtle vertical padding between list items
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            shape = RoundedCornerShape(18.dp), // Slightly rounder than before
+            shape = RoundedCornerShape(18.dp),
             color = MaterialTheme.colorScheme.secondaryContainer,
             modifier = Modifier.size(56.dp)
         ) {
@@ -339,7 +403,7 @@ private fun TransactionItem(transaction: Transaction) {
         }
 
         Text(
-            text = "${if (isIncome) "+" else "-"}$${String.format("%.2f", transaction.amount)}",
+            text = "${if (isIncome) "+" else "-"}₹${String.format("%.2f", transaction.amount)}",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Black,
             color = if (isIncome) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
@@ -352,7 +416,7 @@ private fun EmptyStateMessage() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 48.dp), // Pushed down slightly for better visual center
+            .padding(vertical = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(

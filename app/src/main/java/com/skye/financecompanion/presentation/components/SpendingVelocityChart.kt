@@ -116,7 +116,7 @@ fun SpendingVelocityChart(
             if (selectedIndex != null) {
                 val point = dataPoints[selectedIndex!!]
                 Text(
-                    text = "${point.date.format(headerFormatter)}: $${String.format("%.2f", point.amount)}",
+                    text = "${point.date.format(headerFormatter)}: ₹${String.format("%.2f", point.amount)}",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -151,8 +151,8 @@ fun SpendingVelocityChart(
             val canvasHeight = size.height
 
             // Padding for the Axes
-            val leftPadding = 100f // Space for Y-Axis numbers (e.g., "$1,200")
-            val bottomPadding = 60f // Space for X-Axis dates
+            val leftPadding = 100f
+            val bottomPadding = 60f
 
             val graphWidth = canvasWidth - leftPadding
             val graphHeight = canvasHeight - bottomPadding
@@ -181,7 +181,7 @@ fun SpendingVelocityChart(
                 // Y-Axis Text
                 drawText(
                     textMeasurer = textMeasurer,
-                    text = "$${stepAmount.toInt()}",
+                    text = "₹${stepAmount.toInt()}",
                     topLeft = Offset(0f, yPos - 20f), // Shift up slightly to center on line
                     style = TextStyle(color = textColor, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 )

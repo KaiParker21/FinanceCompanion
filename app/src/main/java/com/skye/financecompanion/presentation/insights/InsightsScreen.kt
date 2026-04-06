@@ -213,7 +213,7 @@ fun CategoryBreakdownItem(
             }
 
             Text(
-                text = "$${String.format("%.2f", amount)}",
+                text = "₹${String.format("%.2f", amount)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black
             )
@@ -268,7 +268,7 @@ fun BurnRateForecastCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "$${String.format("%.2f", projectedSpend)}",
+                text = "₹${String.format("%.2f", projectedSpend)}",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onPrimaryContainer

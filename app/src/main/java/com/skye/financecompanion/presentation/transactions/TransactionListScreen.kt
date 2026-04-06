@@ -199,7 +199,7 @@ fun HistoryTransactionItem(transaction: Transaction) {
             }
 
             Text(
-                text = "${if (isIncome) "+" else "-"}$${String.format("%.2f", transaction.amount)}",
+                text = "${if (isIncome) "+" else "-"}₹${String.format("%.2f", transaction.amount)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = if (isIncome) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error

@@ -75,7 +75,7 @@ fun AddTransactionDialog(
                     OutlinedTextField(
                         value = amount,
                         onValueChange = { amount = it },
-                        label = { Text("Amount ($)") },
+                        label = { Text("Amount (₹)") },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Decimal,
                             imeAction = ImeAction.Next
