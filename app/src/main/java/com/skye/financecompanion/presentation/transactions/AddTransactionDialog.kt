@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +23,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.skye.financecompanion.domain.model.Category
 import com.skye.financecompanion.domain.model.TransactionType
+import com.skye.financecompanion.presentation.components.ReceiptScannerScreen
 
 @Composable
 fun AddTransactionDialog(
@@ -32,6 +35,7 @@ fun AddTransactionDialog(
     var selectedType by remember { mutableStateOf(TransactionType.EXPENSE) }
     var selectedCategory by remember { mutableStateOf(Category.FOOD) }
     var isEssential by remember { mutableStateOf(true) }
+    var showScanner by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
 
@@ -64,19 +68,56 @@ fun AddTransactionDialog(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                OutlinedTextField(
-                    value = amount,
-                    onValueChange = { amount = it },
-                    label = { Text("Amount ($)") },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal,
-                        imeAction = ImeAction.Next
-                    ),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = MaterialTheme.typography.displaySmall,
-                    shape = RoundedCornerShape(16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = amount,
+                        onValueChange = { amount = it },
+                        label = { Text("Amount ($)") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Next
+                        ),
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        textStyle = MaterialTheme.typography.displaySmall,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    FilledIconButton(
+                        onClick = { showScanner = true },
+                        modifier = Modifier.size(56.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Icon(Icons.Rounded.DocumentScanner, contentDescription = "Scan Receipt")
+                    }
+                }
+
+                // Inside your AddTransactionDialog / Screen
+                if (showScanner) {
+                    androidx.compose.ui.window.Dialog(
+                        onDismissRequest = { showScanner = false },
+                        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+                    ) {
+                        ReceiptScannerScreen(
+                            onReceiptParsed = { parsedReceipt ->
+                                // Auto-fill everything!
+                                amount = String.format("%.2f", parsedReceipt.amount)
+                                selectedCategory = parsedReceipt.category
+                                note = parsedReceipt.note
+
+                                showScanner = false // Close the camera
+                            },
+                            onClose = {
+                                showScanner = false
+                            }
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -163,7 +204,9 @@ fun AddTransactionDialog(
                 ) {
                     OutlinedButton(
                         onClick = onDismiss,
-                        modifier = Modifier.weight(1f).height(56.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Text("Cancel")
@@ -177,7 +220,9 @@ fun AddTransactionDialog(
                                 onDismiss()
                             }
                         },
-                        modifier = Modifier.weight(1f).height(56.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Text("Save")

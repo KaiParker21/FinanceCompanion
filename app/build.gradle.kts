@@ -40,6 +40,16 @@ android {
 
 dependencies {
 
+    // CameraX core library using camera2 implementation
+    val cameraxVersion = "1.3.1"
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
+
+    // Google ML Kit for Text Recognition (On-Device OCR)
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.material3)
     val composeBom = platform("androidx.compose:compose-bom:2024.02.02")
