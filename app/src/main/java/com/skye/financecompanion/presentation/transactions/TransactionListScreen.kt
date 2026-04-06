@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skye.financecompanion.domain.model.Transaction
 import com.skye.financecompanion.domain.model.TransactionType
+import com.skye.financecompanion.presentation.components.ExpressiveSearchBar
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +28,7 @@ fun TransactionListScreen(
     viewModel: TransactionListViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     Scaffold(
         topBar = {
@@ -38,83 +40,109 @@ fun TransactionListScreen(
             )
         }
     ) { paddingValues ->
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (uiState.transactions.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "No transactions yet.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                // UPDATED THIS BLOCK for Swipe to Delete
-                items(uiState.transactions, key = { it.id }) { transaction ->
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = { dismissValue ->
-                            // If they swipe fully to either side, trigger the delete!
-                            if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
-                                viewModel.deleteTransaction(transaction)
-                                true // Tell the UI to remove the item from screen
-                            } else {
-                                false
-                            }
-                        }
-                    )
+        // We use a Column to stack the SearchBar above the List
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
 
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        backgroundContent = {
-                            // The red background that reveals itself as you swipe
-                            val color by animateColorAsState(
-                                targetValue = if (dismissState.targetValue != SwipeToDismissBoxValue.Settled) {
-                                    MaterialTheme.colorScheme.errorContainer
-                                } else {
-                                    Color.Transparent
-                                }, label = "swipe_color"
-                            )
+            // 1. The Expressive Search Bar
+            ExpressiveSearchBar(
+                query = searchQuery,
+                onQueryChange = viewModel::onSearchQueryChanged,
+                onClear = viewModel::clearSearch,
+                searchResults = uiState.transactions,
+                modifier = Modifier.padding(bottom = 8.dp) // Little breathing room below it
+            )
 
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(color, RoundedCornerShape(20.dp))
-                                    .padding(horizontal = 20.dp),
-                                contentAlignment = Alignment.CenterEnd // Put the trash can on the right
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Delete Transaction",
-                                    tint = MaterialTheme.colorScheme.onErrorContainer
-                                )
-                            }
-                        }
-                    ) {
-                        // The actual card content
-                        HistoryTransactionItem(transaction)
-                    }
+            // 2. The Content Area
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
+            } else if (uiState.transactions.isEmpty() && searchQuery.isBlank()) {
+                // Scenario A: Database is entirely empty
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No transactions yet.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else if (uiState.transactions.isEmpty() && searchQuery.isNotBlank()) {
+                // Scenario B: User searched for something that doesn't exist
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No results for \"$searchQuery\"",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                // Scenario C: We have data to show!
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                item { Spacer(modifier = Modifier.height(32.dp)) }
+                    items(uiState.transactions, key = { it.id }) { transaction ->
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { dismissValue ->
+                                if (dismissValue == SwipeToDismissBoxValue.EndToStart || dismissValue == SwipeToDismissBoxValue.StartToEnd) {
+                                    viewModel.deleteTransaction(transaction)
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                        )
+
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = {
+                                val color by animateColorAsState(
+                                    targetValue = if (dismissState.targetValue != SwipeToDismissBoxValue.Settled) {
+                                        MaterialTheme.colorScheme.errorContainer
+                                    } else {
+                                        Color.Transparent
+                                    }, label = "swipe_color"
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(color, RoundedCornerShape(20.dp))
+                                        .padding(horizontal = 20.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Delete Transaction",
+                                        tint = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                            }
+                        ) {
+                            HistoryTransactionItem(transaction)
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(32.dp)) }
+                }
             }
         }
     }
 }
 
-// ... Keep your existing HistoryTransactionItem exactly as it was below this point! ...
+// NOTE: I removed the "private" keyword here.
+// Now your ExpressiveSearchBar.kt can use this exact component inside its expanded full-screen list!
 @Composable
-private fun HistoryTransactionItem(transaction: Transaction) {
+fun HistoryTransactionItem(transaction: Transaction) {
     val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
     val isIncome = transaction.type == TransactionType.INCOME
 
