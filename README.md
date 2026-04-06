@@ -148,7 +148,8 @@ To test the `NotificationListenerService` on an emulator, you must grant the "Ma
 
 ## Releases
 
-APK releases and version history will be documented here. You can download the latest APK from the releases section of this repository.
+You can download the latest APK from the releases section of this repository:
+- **[Latest Release v1.0.0](https://github.com/KaiParker21/FinanceCompanion/releases/tag/v1.0.0)**
 
 ---
 **Designed and engineered by Bhavishya Prajapat.**
