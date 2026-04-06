@@ -34,8 +34,8 @@ fun MainScreen(
 
     val items = listOf(
         Screen.Home,
-        Screen.Transactions,
         Screen.Insights,
+        Screen.Transactions,
         Screen.Profile
     )
 

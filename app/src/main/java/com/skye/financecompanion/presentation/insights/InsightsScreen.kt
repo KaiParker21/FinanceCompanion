@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.skye.financecompanion.domain.model.Category
 import com.skye.financecompanion.presentation.components.ChartSlice
 import com.skye.financecompanion.presentation.components.SpendingDonutChart
+import com.skye.financecompanion.presentation.components.SpendingVelocityChart
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +99,7 @@ fun InsightsScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // 1. Burn Rate Forecast
                 BurnRateForecastCard(
                     currentSpend = uiState.totalExpenseAmount,
                     projectedSpend = uiState.projectedMonthEndSpend
@@ -105,10 +107,29 @@ fun InsightsScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // 2. Spending Velocity Line Chart
+                if (uiState.chartData.isNotEmpty()) {
+                    ElevatedCard(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        SpendingVelocityChart(
+                            dataPoints = uiState.chartData,
+                            selectedRange = uiState.selectedTimeRange,
+                            onRangeSelected = { viewModel.setTimeRange(it) }, // Triggers ViewModel!
+                            dailyBudget = uiState.targetDailyBudget,
+                            modifier = Modifier.padding(24.dp)
+                        )
+                    }
+                }
+
+                // 3. Category Donut Chart
                 SpendingDonutChart(
                     slices = slices,
                     totalSpent = uiState.totalExpenseAmount
                 )
+
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Text(
@@ -120,6 +141,7 @@ fun InsightsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
+            // 4. The Breakdown List
             items(uiState.categoryTotals.size) { index ->
                 val categoryTotal = uiState.categoryTotals[index]
                 val color = chartColors[index % chartColors.size]
@@ -132,6 +154,9 @@ fun InsightsScreen(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
+
+            // Bottom padding so the last item doesn't get hidden behind the nav bar
+            item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
 }
