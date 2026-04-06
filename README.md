@@ -22,7 +22,7 @@ An intelligent, automated personal finance tracker featuring on-device machine l
 </div>
 
 <details>
-<summary><b>View All App Gallery (30+ Screenshots) 📸</b></summary>
+<summary><b>View All App Gallery (30+ Screenshots)</b></summary>
 <br/>
 
 **Home & Dashboards**
@@ -30,6 +30,7 @@ An intelligent, automated personal finance tracker featuring on-device machine l
 <img src="screenshots/homescreen.png" width="200"/>
 <img src="screenshots/dashboard.png" width="200"/>
 <img src="screenshots/DashboardStreak.png" width="200"/>
+<img src="screenshots/MagicTracking.png" width="200"/>
 </p>
 
 **Insights & Analytics**
@@ -102,9 +103,9 @@ Built using the Strategy Pattern for scalability and pure domain isolation, the 
 - **Dining Spike:** Triggers a warning if food expenditures exceed a significant threshold of the total rolling budget.
 - **Weekend Warrior:** Flags user behavior if over half of monthly spending occurs on Saturdays and Sundays.
 
-### Predictive Analytics & Computer Vision
-- **Burn Rate Forecasting:** Utilizes local algorithms to calculate daily average spend, mapping current trajectory against the end of the month to project future account balances.
-- **On-Device Receipt Scanning:** Integrates CameraX and Google ML Kit's Text Recognition to scan physical receipts. The extracted text and totals automatically pre-fill the "Add Transaction" dialog, seamlessly eliminating manual data entry friction.
+### AI, Machine Learning & Predictive Analytics
+- **Burn Rate Forecasting (Predictive ML):** Utilizes intelligent local algorithms to analyze historical spending patterns and calculate your daily average spend velocity. It intelligently maps this trajectory against your remaining month to accurately project future account balances.
+- **On-Device Receipt Scanning (Computer Vision):** Integrates CameraX and advanced Google ML Kit text recognition models to passively scan physical receipts. The AI processes the image data locally, extracts text and totals, and automatically pre-fills the "Add Transaction" dialog to seamlessly eliminate manual data entry.
 
 ### Interactive Data Visualization
 Custom-built Canvas components provide a premium analytical experience.
@@ -136,7 +137,7 @@ To facilitate testing and portfolio demonstration, the app includes built-in sta
 
 1. **Clone the repository:**
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/KaiParker21/FinanceCompanion
    ```
 2. **Open the project** in Android Studio (Giraffe or newer recommended).
 3. **Sync Gradle files.**
