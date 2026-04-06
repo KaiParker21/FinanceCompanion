@@ -36,9 +36,10 @@ import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.skye.financecompanion.domain.util.ParsedReceipt
-import com.skye.financecompanion.domain.util.ReceiptParser
-import com.skye.financecompanion.domain.util.ReceiptTextAnalyzer
+import com.skye.financecompanion.domain.model.Category
+import com.skye.financecompanion.domain.utils.ParsedReceipt
+import com.skye.financecompanion.domain.utils.ReceiptParser
+import com.skye.financecompanion.domain.utils.ReceiptTextAnalyzer
 import java.util.concurrent.Executors
 
 @Composable
@@ -60,14 +61,12 @@ fun ReceiptScannerScreen(
         onResult = { granted -> hasCameraPermission = granted }
     )
 
-    // The Gallery Photo Picker Launcher
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         if (uri != null) {
             Toast.makeText(context, "Analyzing image...", Toast.LENGTH_SHORT).show()
             analyzeStaticImage(context, uri) { parsedData ->
-                // Check if the parser actually found an amount
                 if (parsedData.amount != null) {
                     onReceiptParsed(parsedData)
                 } else {
@@ -85,7 +84,6 @@ fun ReceiptScannerScreen(
 
     if (hasCameraPermission) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // 1. The Live Camera Preview
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
@@ -111,7 +109,6 @@ fun ReceiptScannerScreen(
                                     it.setAnalyzer(
                                         Executors.newSingleThreadExecutor(),
                                         ReceiptTextAnalyzer { text ->
-                                            // INTELLIGENT PARSING: Use our new parser on the live feed
                                             val parsedData = ReceiptParser.parse(text)
                                             if (parsedData.amount != null) {
                                                 onReceiptParsed(parsedData)
@@ -135,13 +132,11 @@ fun ReceiptScannerScreen(
                 }
             )
 
-            // 2. The Expressive Overlay UI
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp)
             ) {
-                // Top Row: Close & Gallery Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -155,7 +150,6 @@ fun ReceiptScannerScreen(
                         Icon(Icons.Rounded.Close, contentDescription = "Close", tint = Color.White)
                     }
 
-                    // Gallery Button
                     IconButton(
                         onClick = {
                             galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -168,7 +162,6 @@ fun ReceiptScannerScreen(
                     }
                 }
 
-                // Scanning Indicator Card
                 ElevatedCard(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -206,7 +199,6 @@ fun ReceiptScannerScreen(
     }
 }
 
-// Helper function to process static images from the Gallery
 private fun analyzeStaticImage(context: Context, uri: Uri, onResult: (ParsedReceipt) -> Unit) {
     try {
         val image = InputImage.fromFilePath(context, uri)
@@ -214,17 +206,15 @@ private fun analyzeStaticImage(context: Context, uri: Uri, onResult: (ParsedRece
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                // Feed the raw OCR text into our custom parser
                 val parsedData = ReceiptParser.parse(visionText.text)
                 onResult(parsedData)
             }
             .addOnFailureListener { e ->
                 e.printStackTrace()
-                // Return an empty object so the caller knows it failed
-                onResult(ParsedReceipt(null, com.skye.financecompanion.domain.model.Category.OTHER, ""))
+                onResult(ParsedReceipt(null, Category.OTHER, ""))
             }
     } catch (e: Exception) {
         e.printStackTrace()
-        onResult(ParsedReceipt(null, com.skye.financecompanion.domain.model.Category.OTHER, ""))
+        onResult(ParsedReceipt(null, Category.OTHER, ""))
     }
 }

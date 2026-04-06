@@ -7,16 +7,32 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -31,8 +47,6 @@ import androidx.compose.ui.unit.sp
 import com.skye.financecompanion.domain.model.ChartDataPoint
 import com.skye.financecompanion.domain.model.TimeRange
 import java.time.format.DateTimeFormatter
-import kotlin.collections.forEachIndexed
-import kotlin.collections.mapIndexed
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -56,12 +70,11 @@ fun SpendingVelocityChart(
     var touchX by remember { mutableStateOf(-1f) }
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
 
-    // Date formatters depending on the range
     val headerFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
     val axisFormatter = if (selectedRange == TimeRange.WEEK) {
-        DateTimeFormatter.ofPattern("E") // Mon, Tue, Wed
+        DateTimeFormatter.ofPattern("E")
     } else {
-        DateTimeFormatter.ofPattern("MMM d") // Oct 4, Oct 10
+        DateTimeFormatter.ofPattern("MMM d")
     }
 
     LaunchedEffect(dataPoints) {
@@ -70,7 +83,6 @@ fun SpendingVelocityChart(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        // --- 1. SLIDING WINDOW FILTERS ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -84,20 +96,19 @@ fun SpendingVelocityChart(
                 fontWeight = FontWeight.Bold
             )
 
-            // The Pill Selector
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
-                TimeRange.values().forEach { range ->
+                TimeRange.entries.forEach { range ->
                     val isSelected = selectedRange == range
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                             .clickable {
-                                selectedIndex = null // Reset crosshair
+                                selectedIndex = null
                                 onRangeSelected(range)
                             }
                             .padding(horizontal = 16.dp, vertical = 6.dp)
@@ -113,7 +124,6 @@ fun SpendingVelocityChart(
             }
         }
 
-        // --- 2. DYNAMIC CROSSHAIR HEADER ---
         Box(modifier = Modifier.height(24.dp).padding(bottom = 8.dp)) {
             if (selectedIndex != null) {
                 val point = dataPoints[selectedIndex!!]

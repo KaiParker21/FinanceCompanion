@@ -33,13 +33,12 @@ fun RootNavGraph(
         navController = navController,
         startDestination = RootScreen.Splash.route
     ) {
-        // 1. SPLASH SCREEN
         composable(RootScreen.Splash.route) {
             SplashScreen(
                 authState = authState,
                 onNavigateToMain = {
                     navController.navigate(RootScreen.MainApp.route) {
-                        popUpTo(RootScreen.Splash.route) { inclusive = true } // Destroy splash so we can't 'back' into it
+                        popUpTo(RootScreen.Splash.route) { inclusive = true }
                     }
                 },
                 onNavigateToLogin = {
@@ -50,13 +49,11 @@ fun RootNavGraph(
             )
         }
 
-        // 2. LOGIN SCREEN
         composable(RootScreen.Login.route) {
-            // Listen for successful login
             LaunchedEffect(authState) {
                 if (authState is AuthState.Authenticated) {
                     navController.navigate(RootScreen.MainApp.route) {
-                        popUpTo(RootScreen.Login.route) { inclusive = true } // Destroy login screen
+                        popUpTo(RootScreen.Login.route) { inclusive = true }
                     }
                 }
             }
@@ -69,13 +66,11 @@ fun RootNavGraph(
             )
         }
 
-        // 3. REGISTER SCREEN
         composable(RootScreen.Register.route) {
-            // Listen for successful registration
             LaunchedEffect(authState) {
                 if (authState is AuthState.Authenticated) {
                     navController.navigate(RootScreen.MainApp.route) {
-                        popUpTo(RootScreen.Login.route) { inclusive = true } // Clear the whole auth stack
+                        popUpTo(RootScreen.Login.route) { inclusive = true }
                     }
                 }
             }
@@ -83,18 +78,17 @@ fun RootNavGraph(
             RegisterScreen(
                 viewModel = authViewModel,
                 onNavigateToLogin = {
-                    navController.popBackStack() // Smoothly slides back to the Login screen
+                    navController.popBackStack()
                 }
             )
         }
 
-        // 4. MAIN APP SHELL (Bottom Navigation)
         composable(RootScreen.MainApp.route) {
 
             LaunchedEffect(authState) {
                 if (authState is AuthState.Idle) {
                     navController.navigate(RootScreen.Login.route) {
-                        popUpTo(RootScreen.MainApp.route) { inclusive = true } // Destroy the main app stack
+                        popUpTo(RootScreen.MainApp.route) { inclusive = true }
                     }
                 }
             }

@@ -85,7 +85,6 @@ class ProfileViewModel(
         }
     }
 
-    // NEW: The "Evaluator Friendly" Mock Data Generator
     fun loadMockData() {
         viewModelScope.launch {
             _syncState.value = "Loading demo data..."
@@ -96,9 +95,8 @@ class ProfileViewModel(
                 Transaction(UUID.randomUUID().toString(), 1200.0, TransactionType.EXPENSE, Category.BILLS, today.minusDays(4), "Rent", true),
                 Transaction(UUID.randomUUID().toString(), 45.50, TransactionType.EXPENSE, Category.FOOD, today.minusDays(3), "Groceries", true),
                 Transaction(UUID.randomUUID().toString(), 15.00, TransactionType.EXPENSE, Category.TRANSPORT, today.minusDays(2), "Train Ticket", true),
-                Transaction(UUID.randomUUID().toString(), 120.0, TransactionType.EXPENSE, Category.SHOPPING, today.minusDays(1), "New Shoes", false), // Breaks streak
-                Transaction(UUID.randomUUID().toString(), 25.00, TransactionType.EXPENSE, Category.FOOD, today, "Lunch out", false) // Breaks streak today
-            )
+                Transaction(UUID.randomUUID().toString(), 120.0, TransactionType.EXPENSE, Category.SHOPPING, today.minusDays(1), "New Shoes", false),
+                Transaction(UUID.randomUUID().toString(), 25.00, TransactionType.EXPENSE, Category.FOOD, today, "Lunch out", false)             )
 
             mockData.forEach { tx ->
                 repository.insertTransaction(tx)

@@ -1,7 +1,6 @@
 package com.skye.financecompanion.presentation
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.skye.financecompanion.FinanceApplication
@@ -9,7 +8,7 @@ import com.skye.financecompanion.presentation.auth.AuthViewModel
 import com.skye.financecompanion.presentation.home.HomeViewModel
 import com.skye.financecompanion.presentation.insights.InsightsViewModel
 import com.skye.financecompanion.presentation.profile.ProfileViewModel
-import com.skye.financecompanion.presentation.transactions.TransactionListViewModel // ADD THIS
+import com.skye.financecompanion.presentation.transactions.TransactionListViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -30,7 +29,6 @@ object AppViewModelProvider {
             )
         }
 
-        // ADD THIS NEW INITIALIZER
         initializer {
             val application = (this[APPLICATION_KEY] as FinanceApplication)
             val container = application.container

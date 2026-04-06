@@ -32,7 +32,6 @@ fun SpendingDonutChart(
     val total = slices.sumOf { it.amount.toDouble() }.toFloat()
 
 
-    // Smooth sweep animation on load
     var animationPlayed by remember { mutableStateOf(false) }
     val animateSweep by animateFloatAsState(
         targetValue = if (animationPlayed) 360f else 0f,
@@ -55,7 +54,6 @@ fun SpendingDonutChart(
             val innerRadius = (size.minDimension - strokeWidth) / 2
             val center = Offset(size.width / 2, size.height / 2)
 
-            // Draw the track background (soft variant color)
             drawCircle(
                 color = trackColor,
                 radius = innerRadius,
@@ -64,7 +62,7 @@ fun SpendingDonutChart(
             )
 
             if (total > 0) {
-                var startAngle = -90f // Start at the top (12 o'clock)
+                var startAngle = -90f
 
                 slices.forEach { slice ->
                     val sweepAngle = (slice.amount / total) * animateSweep
@@ -77,13 +75,11 @@ fun SpendingDonutChart(
                         size = Size(size.width - strokeWidth, size.height - strokeWidth),
                         style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                     )
-                    // Add a tiny gap between slices
                     startAngle += (sweepAngle + 2f)
                 }
             }
         }
 
-        // Center Data
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Total Spent",

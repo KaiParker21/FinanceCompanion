@@ -45,23 +45,23 @@ fun AddTransactionDialog(
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
-            usePlatformDefaultWidth = false, // Allows us to use custom padding
-            decorFitsSystemWindows = false   // Lets the dialog slide up smoothly with the keyboard
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
         )
     ) {
         Surface(
-            shape = RoundedCornerShape(28.dp), // Very round, expressive Material 3 feel
+            shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .imePadding() // Pushes the dialog up when keyboard opens
+                .imePadding()
         ) {
             Column(
                 modifier = Modifier
                     .padding(24.dp)
-                    .verticalScroll(rememberScrollState()), // Allows scrolling if keyboard covers the screen
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -100,20 +100,18 @@ fun AddTransactionDialog(
                     }
                 }
 
-                // Inside your AddTransactionDialog / Screen
                 if (showScanner) {
-                    androidx.compose.ui.window.Dialog(
+                    Dialog(
                         onDismissRequest = { showScanner = false },
                         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
                     ) {
                         ReceiptScannerScreen(
                             onReceiptParsed = { parsedReceipt ->
-                                // Auto-fill everything!
                                 amount = String.format("%.2f", parsedReceipt.amount)
                                 selectedCategory = parsedReceipt.category
                                 note = parsedReceipt.note
 
-                                showScanner = false // Close the camera
+                                showScanner = false
                             },
                             onClose = {
                                 showScanner = false
@@ -159,10 +157,10 @@ fun AddTransactionDialog(
                                 Icon(
                                     imageVector = category.icon,
                                     contentDescription = null,
-                                    modifier = Modifier.size(18.dp) // Standard size for chips
+                                    modifier = Modifier.size(18.dp)
                                 )
                             },
-                            shape = RoundedCornerShape(12.dp) // Matches your "Ocean" theme
+                            shape = RoundedCornerShape(12.dp)
                         )
                     }
                 }

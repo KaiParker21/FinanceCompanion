@@ -43,29 +43,25 @@ fun TransactionListScreen(
         }
     ) { paddingValues ->
 
-        // We use a Column to stack the SearchBar above the List
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
 
-            // 1. The Expressive Search Bar
             ExpressiveSearchBar(
                 query = searchQuery,
                 onQueryChange = viewModel::onSearchQueryChanged,
                 onClear = viewModel::clearSearch,
                 searchResults = uiState.transactions,
-                modifier = Modifier.padding(bottom = 8.dp) // Little breathing room below it
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // 2. The Content Area
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             } else if (uiState.transactions.isEmpty() && searchQuery.isBlank()) {
-                // Scenario A: Database is entirely empty
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "No transactions yet.",
@@ -74,7 +70,6 @@ fun TransactionListScreen(
                     )
                 }
             } else if (uiState.transactions.isEmpty() && searchQuery.isNotBlank()) {
-                // Scenario B: User searched for something that doesn't exist
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "No results for \"$searchQuery\"",
@@ -83,7 +78,6 @@ fun TransactionListScreen(
                     )
                 }
             } else {
-                // Scenario C: We have data to show!
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -143,8 +137,6 @@ fun TransactionListScreen(
     }
 }
 
-// NOTE: I removed the "private" keyword here.
-// Now your ExpressiveSearchBar.kt can use this exact component inside its expanded full-screen list!
 @Composable
 fun HistoryTransactionItem(transaction: Transaction) {
     val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")

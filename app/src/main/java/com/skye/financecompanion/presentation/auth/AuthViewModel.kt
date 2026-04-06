@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-// Represents what is happening on the Login Screen
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
@@ -25,7 +24,6 @@ class AuthViewModel(
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
-        // Check if user is already logged in when the app starts
         checkAuthStatus()
     }
 
@@ -41,7 +39,6 @@ class AuthViewModel(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                // Suspends until Firebase finishes the network request
                 auth.createUserWithEmailAndPassword(email, password).await()
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
@@ -67,7 +64,6 @@ class AuthViewModel(
         _authState.value = AuthState.Idle
     }
 
-    // Helper to reset error states
     fun resetState() {
         if (_authState.value is AuthState.Error) {
             _authState.value = AuthState.Idle

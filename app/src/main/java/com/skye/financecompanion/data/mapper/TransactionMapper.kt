@@ -5,7 +5,6 @@ import com.skye.financecompanion.domain.model.Transaction
 import java.time.Instant
 import java.time.ZoneId
 
-// Extension function: Translates Database Entity -> Pure Domain Model
 fun TransactionEntity.toDomain(): Transaction {
     return Transaction(
         id = id,
@@ -18,7 +17,6 @@ fun TransactionEntity.toDomain(): Transaction {
     )
 }
 
-// Extension function: Translates Pure Domain Model -> Database Entity
 fun Transaction.toEntity(): TransactionEntity {
     return TransactionEntity(
         id = id,

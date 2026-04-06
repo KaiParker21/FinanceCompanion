@@ -25,12 +25,10 @@ class HomeViewModel(
     private val calculateStreakUseCase: CalculateStreakUseCase
 ) : ViewModel() {
 
-    // One single source of truth for the UI
     val uiState: StateFlow<HomeUiState> = combine(
         transactionRepository.getBalance(),
         transactionRepository.getAllTransactions()
     ) { balance, transactions ->
-        // We calculate the streak dynamically based on the transactions retrieved
         val income = transactions.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
         val expense = transactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
         val streak = calculateStreakUseCase(transactions)

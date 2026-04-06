@@ -59,7 +59,6 @@ fun LoginScreen(
 
     val haptic = LocalHapticFeedback.current
 
-    // Trigger for the cascading entrance animations
     var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(200)
@@ -102,7 +101,6 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Center
             ) {
 
-                // 1. HEADER ANIMATION (Starts immediately)
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(
@@ -149,7 +147,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // 2. FORM ANIMATION (Delayed by 500ms)
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000, delayMillis = 500)) + slideInVertically(
@@ -283,7 +280,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 3. FOOTER ANIMATION (Delayed by 1000ms)
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000, delayMillis = 1000)) + slideInVertically(

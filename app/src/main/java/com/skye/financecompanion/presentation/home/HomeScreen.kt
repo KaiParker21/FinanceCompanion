@@ -124,7 +124,6 @@ fun HomeScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    // Add a satisfying physical click when adding a transaction
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onAddTransactionClick()
                 },
@@ -141,12 +140,10 @@ fun HomeScreen(
         val lifecycleOwner = LocalLifecycleOwner.current
         val haptic = LocalHapticFeedback.current
 
-        // 1. Access the device's permanent storage
         val sharedPreferences = context.getSharedPreferences("finance_companion_prefs", Context.MODE_PRIVATE)
 
         var hasNotificationPermission by remember { mutableStateOf(context.hasMagicTrackingPermission()) }
 
-        // 2. Read from storage on boot. If it doesn't exist, default to 'false' (meaning they haven't dismissed it yet)
         var hasPermanentlyDismissed by remember {
             mutableStateOf(sharedPreferences.getBoolean("dismissed_magic_tracking", false))
         }
@@ -263,9 +260,7 @@ fun HomeScreen(
                                 context.startActivity(intent)
                             },
                             onDismissClick = {
-                                // 1. Save the decision to permanent storage forever
                                 sharedPreferences.edit { putBoolean("dismissed_magic_tracking", true) }
-                                // 2. Update the local state so the card vanishes instantly
                                 hasPermanentlyDismissed = true
                             }
                         )
@@ -307,11 +302,8 @@ private fun DashboardHeader(
         bottomEnd = 40.dp
     )
 
-    // ALIVE FEATURE 1: Fixed Rolling Numbers
-    // We explicitly tell it to start at 0.0f
     val animatedBalance = remember { Animatable(0f) }
 
-    // When the balance arrives from the ViewModel, trigger the count-up
     LaunchedEffect(balance) {
         animatedBalance.animateTo(
             targetValue = balance.toFloat(),
@@ -322,9 +314,9 @@ private fun DashboardHeader(
     val balanceText = "₹${String.format("%,.2f", animatedBalance.value)}"
 
     val dynamicStyle = when {
-        balanceText.length > 12 -> MaterialTheme.typography.headlineMedium // $100,000.00+
-        balanceText.length > 10 -> MaterialTheme.typography.displaySmall   // $10,000.00+
-        else -> MaterialTheme.typography.displayLarge                     // Standard
+        balanceText.length > 12 -> MaterialTheme.typography.headlineMedium
+        balanceText.length > 10 -> MaterialTheme.typography.displaySmall
+        else -> MaterialTheme.typography.displayLarge
     }
 
     ElevatedCard(
@@ -346,7 +338,6 @@ private fun DashboardHeader(
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Note: We use animatedBalance.value here now!
             Text(
                 text = balanceText,
                 style = dynamicStyle,

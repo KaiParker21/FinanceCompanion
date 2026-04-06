@@ -105,7 +105,6 @@ fun InsightsScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 1. Burn Rate Forecast
                 BurnRateForecastCard(
                     currentSpend = uiState.totalExpenseAmount,
                     projectedSpend = uiState.projectedMonthEndSpend
@@ -113,7 +112,6 @@ fun InsightsScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 2. Spending Velocity Line Chart
                 if (uiState.chartData.isNotEmpty()) {
                     ElevatedCard(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
@@ -123,7 +121,7 @@ fun InsightsScreen(
                         SpendingVelocityChart(
                             dataPoints = uiState.chartData,
                             selectedRange = uiState.selectedTimeRange,
-                            onRangeSelected = { viewModel.setTimeRange(it) }, // Triggers ViewModel!
+                            onRangeSelected = { viewModel.setTimeRange(it) },
                             dailyBudget = uiState.targetDailyBudget,
                             modifier = Modifier.padding(24.dp)
                         )
@@ -145,7 +143,6 @@ fun InsightsScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                // 3. Category Donut Chart
                 SpendingDonutChart(
                     slices = slices,
                     totalSpent = uiState.totalExpenseAmount
@@ -162,7 +159,6 @@ fun InsightsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // 4. The Breakdown List
             items(uiState.categoryTotals.size) { index ->
                 val categoryTotal = uiState.categoryTotals[index]
                 val color = chartColors[index % chartColors.size]
@@ -176,7 +172,6 @@ fun InsightsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
-            // Bottom padding so the last item doesn't get hidden behind the nav bar
             item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
@@ -187,7 +182,7 @@ fun CategoryBreakdownItem(
     category: Category,
     amount: Double,
     percentage: Double,
-    dotColor: androidx.compose.ui.graphics.Color
+    dotColor: Color
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -253,7 +248,7 @@ fun BurnRateForecastCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 24.dp),
-        shape = RoundedCornerShape(24.dp), // Expressive, deep rounding
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer

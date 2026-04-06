@@ -1,4 +1,4 @@
-package com.skye.financecompanion.domain.util
+package com.skye.financecompanion.domain.utils
 
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
@@ -12,7 +12,6 @@ class ReceiptTextAnalyzer(
     private val onTextFound: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
 
-    // Initialize the ML Kit Text Recognizer
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     @OptIn(ExperimentalGetImage::class)
@@ -23,14 +22,12 @@ class ReceiptTextAnalyzer(
 
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
-                    // We found text! Pass it back to the UI.
                     onTextFound(visionText.text)
                 }
                 .addOnFailureListener { e ->
                     e.printStackTrace()
                 }
                 .addOnCompleteListener {
-                    // CRITICAL: You must close the imageProxy, or the camera freezes!
                     imageProxy.close()
                 }
         } else {

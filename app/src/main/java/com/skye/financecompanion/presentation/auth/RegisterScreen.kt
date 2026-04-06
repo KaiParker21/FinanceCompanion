@@ -52,7 +52,6 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    // Use local state for form validation errors, fallback to AuthState errors
     var localErrorMessage by remember { mutableStateOf<String?>(null) }
 
     val focusManager = LocalFocusManager.current
@@ -68,7 +67,6 @@ fun RegisterScreen(
     }
 
     val isLoading = authState is AuthState.Loading
-    // Determine if we should show an error from either local validation or the server
     val displayError = localErrorMessage ?: (authState as? AuthState.Error)?.message
     val isError = displayError != null
 
@@ -116,7 +114,6 @@ fun RegisterScreen(
                 verticalArrangement = Arrangement.Center
             ) {
 
-                // 1. HEADER ANIMATION
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(
@@ -131,7 +128,6 @@ fun RegisterScreen(
                         Box(
                             modifier = Modifier
                                 .size(120.dp)
-                                // Mirrored asymmetrical corners compared to Login
                                 .clip(RoundedCornerShape(50.dp, 10.dp, 30.dp, 30.dp))
                                 .background(
                                     Brush.linearGradient(
@@ -164,7 +160,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // 2. FORM ANIMATION
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000, delayMillis = 500)) + slideInVertically(
@@ -313,7 +308,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 3. FOOTER ANIMATION
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000, delayMillis = 1000)) + slideInVertically(

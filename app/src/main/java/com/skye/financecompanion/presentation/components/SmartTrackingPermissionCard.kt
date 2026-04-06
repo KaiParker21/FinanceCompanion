@@ -64,7 +64,6 @@ fun SmartTrackingPermissionCard(
                     }
                 }
 
-                // Subtle dismiss button
                 IconButton(
                     onClick = onDismissClick,
                     modifier = Modifier.size(24.dp)

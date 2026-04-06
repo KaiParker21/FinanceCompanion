@@ -7,19 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skye.financecompanion.presentation.AppViewModelProvider
-import com.skye.financecompanion.presentation.MainScreen
-import com.skye.financecompanion.presentation.auth.AuthState
 import com.skye.financecompanion.presentation.auth.AuthViewModel
-import com.skye.financecompanion.presentation.auth.LoginScreen
-import com.skye.financecompanion.presentation.auth.RegisterScreen
 import com.skye.financecompanion.presentation.home.HomeViewModel
 import com.skye.financecompanion.presentation.insights.InsightsViewModel
 import com.skye.financecompanion.presentation.navigation.RootNavGraph
@@ -46,7 +37,6 @@ class MainActivity : ComponentActivity() {
                     val profileViewModel: ProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
 
-                    // 2. Hand control over to the Root Navigation Graph
                     RootNavGraph(
                         authViewModel = authViewModel,
                         homeViewModel = homeViewModel,

@@ -68,7 +68,6 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-        // This NavHost acts as the container that swaps out the screens
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
@@ -95,7 +94,6 @@ fun MainScreen(
             }
         }
 
-        // Keep the dialog logic here so it can be opened from anywhere if needed later
         if (showAddDialog) {
             AddTransactionDialog(
                 onDismiss = { showAddDialog = false },

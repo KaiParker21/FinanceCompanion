@@ -42,7 +42,6 @@ fun ProfileScreen(
     val syncState by viewModel.syncState.collectAsState()
     val haptic = LocalHapticFeedback.current
 
-    // Avatar spring animation state
     var avatarScale by remember { mutableStateOf(0.5f) }
     val animatedAvatarScale by animateFloatAsState(
         targetValue = avatarScale,
@@ -54,10 +53,9 @@ fun ProfileScreen(
     )
 
     LaunchedEffect(Unit) {
-        avatarScale = 1f // Trigger the bounce when screen opens
+        avatarScale = 1f
     }
 
-    // Auto-hide the sync message after 3 seconds
     LaunchedEffect(syncState) {
         if (syncState != "Idle") {
             delay(3000)
@@ -83,7 +81,6 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Animated Avatar
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -110,7 +107,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Sync Status Banner (Slides in when active)
             AnimatedVisibility(visible = syncState != "Idle") {
                 Surface(
                     color = MaterialTheme.colorScheme.tertiaryContainer,
@@ -134,7 +130,6 @@ fun ProfileScreen(
                 }
             }
 
-            // --- 1. AUTOMATION CARD ---
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Automation",
@@ -147,7 +142,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- 2. CLOUD SYNC CARD ---
             SettingsCard(title = "Cloud Synchronization") {
                 SettingsRow(
                     icon = Icons.Rounded.CloudUpload,
@@ -170,7 +164,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- 3. DEVELOPER TOOLS CARD (MOCK DATA) ---
             SettingsCard(title = "Evaluator Tools") {
                 SettingsRow(
                     icon = Icons.Rounded.AutoGraph,
@@ -185,7 +178,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Danger Zone Logout
             Button(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -198,7 +190,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(20.dp) // Expressive rounding
+                shape = RoundedCornerShape(20.dp)
             ) {
                 Icon(Icons.Rounded.Logout, contentDescription = null)
                 Spacer(modifier = Modifier.width(12.dp))
@@ -211,7 +203,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Subtle App Version Footer
             Text(
                 text = "Finance Companion v1.0.0",
                 style = MaterialTheme.typography.labelSmall,
@@ -223,7 +214,6 @@ fun ProfileScreen(
     }
 }
 
-// Helper Composables for that "iOS Settings" look
 @Composable
 fun SettingsCard(
     title: String,
@@ -238,7 +228,7 @@ fun SettingsCard(
         )
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp), // Deep expressive corner radius
+            shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
@@ -292,10 +282,8 @@ fun MagicTrackingSettingsToggle() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val haptic = LocalHapticFeedback.current
 
-    // State tracks whether the permission is currently granted
     var isEnabled by remember { mutableStateOf(context.hasMagicTrackingPermission()) }
 
-    // Re-check permission whenever the user returns to the app
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -308,7 +296,7 @@ fun MagicTrackingSettingsToggle() {
 
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp), // Matched corner radius
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),

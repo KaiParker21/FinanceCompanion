@@ -11,7 +11,7 @@ data class TransactionEntity(
     val amount: Double,
     val type: TransactionType,
     val category: Category,
-    val dateMillis: Long, // Room cannot store LocalDate natively, so we store timestamps
+    val dateMillis: Long,
     val note: String,
     val isEssential: Boolean
 )

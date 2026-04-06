@@ -8,8 +8,6 @@ import com.skye.financecompanion.data.repository.TransactionRepositoryImpl
 import com.skye.financecompanion.domain.repository.TransactionRepository
 import com.skye.financecompanion.domain.usecase.CalculateStreakUseCase
 
-// We will import the repository later when we build it
-
 interface AppContainer {
     val auth: FirebaseAuth
     val firestore: FirebaseFirestore
